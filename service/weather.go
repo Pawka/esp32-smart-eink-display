@@ -17,16 +17,16 @@ var (
 )
 
 type ForecastResponse struct {
-	Place    string
-	Forecast []Forecast
+	Place    string     `json:"place"`
+	Forecast []Forecast `json:"forecast"`
 }
 
 type Forecast struct {
-	Day            ForecastDay
-	AirTemperature float32
-	WindSpeed      int
-	WindDirection  int
-	ConditionCode  string
+	Day            ForecastDay `json:"day"`
+	AirTemperature float32     `json:"temp"`
+	WindSpeed      int         `json:"wind"`
+	WindDirection  int         `json:"direction"`
+	ConditionCode  string      `json:"condition"`
 }
 
 type Weather interface {
