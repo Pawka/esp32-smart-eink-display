@@ -1,18 +1,29 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 
 	"github.com/Pawka/esp32-eink-smart-display/service"
 )
 
-func main() {
-	fmt.Println("vim-go")
-	w := service.NewWeather()
-	r, e := w.Forecast("vilnius")
-	if e != nil {
-		panic(e)
-	}
+const serverAddr string = ":3000"
 
-	fmt.Printf("%#v", r)
+func main() {
+	http.HandleFunc("/", serve)
+	fmt.Printf("Serving on %s\n", serverAddr)
+	http.ListenAndServe(serverAddr, nil)
+}
+
+func serve(w http.ResponseWriter, r *http.Request) {
+	weather := service.NewWeather()
+	wr, err := weather.Forecast("vilnius")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	js, err := json.Marshal(wr)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
 }
