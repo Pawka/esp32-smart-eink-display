@@ -59,7 +59,6 @@ func (w *weather) Forecast(place string) (*ForecastResponse, error) {
 	var err error
 	now := time.Now()
 
-	fmt.Printf("ts: %#v", w.ts)
 	if w.ts.Add(requestCacheTTL).After(now) {
 		weather = w.last
 	} else {
