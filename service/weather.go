@@ -33,29 +33,45 @@ type Weather interface {
 	Forecast(place string) (*ForecastResponse, error)
 }
 
-func NewWeather() Weather {
-	return &weather{
-		Client: meteolt.New(),
+var weatherService Weather
+
+// GetWeather initializes a new Weather service if it was not created yet.
+// Returns the instance of service.
+func GetWeather() Weather {
+	if weatherService == nil {
+		weatherService = &weather{
+			Client: meteolt.New(),
+		}
 	}
+	return weatherService
 }
 
 type weather struct {
 	Client meteolt.Client
 	ts     time.Time
-	last   *meteolt.Forecast
+	last   *meteolt.Weather
 }
 
-const requestCacheTTL = time.Second
+const requestCacheTTL = time.Second * 120
 
 func (w *weather) Forecast(place string) (*ForecastResponse, error) {
-	// TODO: Add caching
-	weather, err := w.Client.Forecast(place)
-	if err != nil {
-		return nil, fmt.Errorf("weather service forecast: %v", err)
+	var weather *meteolt.Weather
+	var err error
+	now := time.Now()
+
+	fmt.Printf("ts: %#v", w.ts)
+	if w.ts.Add(requestCacheTTL).After(now) {
+		weather = w.last
+	} else {
+		if weather, err = w.Client.Forecast(place); err != nil {
+			return nil, fmt.Errorf("weather service forecast: %v", err)
+		}
+		w.last = weather
+		w.ts = now
 	}
 
 	resp := &ForecastResponse{
-		Place:    weather.Place.Name,
+		Place:    w.last.Place.Name,
 		Forecast: mapFromMeteoltResponse(weather.ForecastTimestamps),
 	}
 	return resp, nil

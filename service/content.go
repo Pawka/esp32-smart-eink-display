@@ -13,7 +13,7 @@ type Content struct {
 }
 
 func NewContent() (Content, error) {
-	w := NewWeather()
+	w := GetWeather()
 	wr, err := w.Forecast(WeatherLocation)
 	if err != nil {
 		return Content{}, fmt.Errorf("creating content: %v", err)
