@@ -23,7 +23,7 @@ type Forecast struct {
 	ForecastTimeUTC string  `json:"forecastTimeUtc"`
 	AirTemperature  float32 `json:"airTemperature"`
 	WindSpeed       int     `json:"WindSpeed"`
-	WindGUst        int     `json:"windGust"`
+	WindGust        int     `json:"windGust"`
 	WindDirection   int     `json:"windDirection"`
 	ConditionCode   string  `json:"conditionCode"`
 }
