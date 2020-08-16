@@ -54,6 +54,11 @@ func (ct *Time) String() string {
 	return fmt.Sprintf("%q", t.Format(ctLayout))
 }
 
+// ToTime returns value converted to time.Time struct.
+func (ct *Time) ToTime() time.Time {
+	return time.Time(*ct)
+}
+
 type Client interface {
 	Forecast(place string) (*Weather, error)
 }

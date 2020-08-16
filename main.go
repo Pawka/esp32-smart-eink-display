@@ -17,13 +17,12 @@ func main() {
 }
 
 func serve(w http.ResponseWriter, r *http.Request) {
-	weather := service.NewWeather()
-	wr, err := weather.Forecast("vilnius")
+	c, err := service.NewContent()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	js, err := json.Marshal(wr)
+	js, err := json.Marshal(c)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
