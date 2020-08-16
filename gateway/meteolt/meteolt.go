@@ -4,11 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strings"
+	"time"
 
 	"net/http"
 )
 
-const forecastsURL string = "https://api.meteo.lt/v1/places/%s/forecasts/long-term"
+const (
+	forecastsURL string = "https://api.meteo.lt/v1/places/%s/forecasts/long-term"
+	ctLayout            = "2006-01-02 15:04:05"
+)
 
 type Weather struct {
 	Place              Place      `json:"place"`
@@ -20,12 +25,33 @@ type Place struct {
 }
 
 type Forecast struct {
-	ForecastTimeUTC string  `json:"forecastTimeUtc"`
+	ForecastTimeUTC Time    `json:"forecastTimeUtc"`
 	AirTemperature  float32 `json:"airTemperature"`
 	WindSpeed       int     `json:"WindSpeed"`
 	WindGust        int     `json:"windGust"`
 	WindDirection   int     `json:"windDirection"`
 	ConditionCode   string  `json:"conditionCode"`
+}
+
+type Time time.Time
+
+// UnmarshalJSON Parses the json string in the custom format
+func (ct *Time) UnmarshalJSON(b []byte) (err error) {
+	s := strings.Trim(string(b), `"`)
+	nt, err := time.Parse(ctLayout, s)
+	*ct = Time(nt)
+	return
+}
+
+// MarshalJSON writes a quoted string in the custom format
+func (ct Time) MarshalJSON() ([]byte, error) {
+	return []byte(ct.String()), nil
+}
+
+// String returns the time in the custom format
+func (ct *Time) String() string {
+	t := time.Time(*ct)
+	return fmt.Sprintf("%q", t.Format(ctLayout))
 }
 
 type Client interface {
@@ -39,9 +65,12 @@ func New() Client {
 type client struct {
 }
 
+var forecastURL = func(place string) string {
+	return fmt.Sprintf(forecastsURL, place)
+}
+
 func (c *client) Forecast(place string) (*Weather, error) {
-	url := fmt.Sprintf(forecastsURL, place)
-	resp, err := http.Get(url)
+	resp, err := http.Get(forecastURL(place))
 	if err != nil {
 		return nil, fmt.Errorf("requesting meteo.lt: %v", err)
 	}

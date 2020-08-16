@@ -1,0 +1,41 @@
+{
+  "place": {
+    "code": "vilnius",
+    "name": "Vilnius",
+    "administrativeDivision": "Vilniaus miesto savivaldybė",
+    "country": "Lietuva",
+    "countryCode": "LT",
+    "coordinates": {
+      "latitude": 54.687046,
+      "longitude": 25.282911
+    }
+  },
+  "forecastType": "long-term",
+  "forecastCreationTimeUtc": "2020-08-16 11:04:34",
+  "forecastTimestamps": [
+    {
+      "forecastTimeUtc": "2020-08-16 11:00:00",
+      "airTemperature": 28.5,
+      "windSpeed": 2,
+      "windGust": 6,
+      "windDirection": 271,
+      "cloudCover": 1,
+      "seaLevelPressure": 1017,
+      "relativeHumidity": 11,
+      "totalPrecipitation": 0,
+      "conditionCode": "clear"
+    },
+    {
+      "forecastTimeUtc": "2020-08-16 12:00:00",
+      "airTemperature": 29,
+      "windSpeed": 3,
+      "windGust": 7,
+      "windDirection": 259,
+      "cloudCover": 2,
+      "seaLevelPressure": 1016,
+      "relativeHumidity": 6,
+      "totalPrecipitation": 0,
+      "conditionCode": "clear"
+    }
+  ]
+}
