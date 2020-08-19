@@ -5,10 +5,13 @@ import (
 	"time"
 )
 
-const WeatherLocation string = "vilnius"
+const (
+	WeatherLocation string = "vilnius"
+	layoutISO              = "2006-01-02 15:04:05"
+)
 
 type Content struct {
-	TS      time.Time        `json:"ts"`
+	TS      string           `json:"ts"`
 	Weather ForecastResponse `json:"weather"`
 }
 
@@ -18,8 +21,9 @@ func NewContent() (Content, error) {
 	if err != nil {
 		return Content{}, fmt.Errorf("creating content: %v", err)
 	}
+	t := time.Now()
 	return Content{
-		TS:      time.Now(),
+		TS:      t.Format(layoutISO),
 		Weather: *wr,
 	}, nil
 }
