@@ -44,6 +44,7 @@ func TestForecast(t *testing.T) {
 				WindGust:        6,
 				WindDirection:   271,
 				ConditionCode:   "clear",
+				Icon:            'B',
 			},
 			{
 				ForecastTimeUTC: Time(t2),
@@ -52,10 +53,17 @@ func TestForecast(t *testing.T) {
 				WindGust:        7,
 				WindDirection:   259,
 				ConditionCode:   "clear",
+				Icon:            'B',
 			},
 		},
 	}
 
 	assert.NoError(t, err)
 	assert.Equal(t, want, res)
+}
+
+func TestGetIcon(t *testing.T) {
+	assert.Equal(t, 'B', getIcon("clear"))
+	assert.Equal(t, ')', getIcon("na"))
+	assert.Equal(t, iconNotFound, getIcon("some-random-condition"))
 }

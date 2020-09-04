@@ -13,7 +13,26 @@ import (
 const (
 	forecastsURL string = "https://api.meteo.lt/v1/places/%s/forecasts/long-term"
 	ctLayout            = "2006-01-02 15:04:05"
+	iconNotFound rune   = ')'
 )
+
+// conditionToMeteocon is weather conditions map to meteocon icons font.
+// URL: alessioatzeni.com/meteocons/
+var conditionToMeteocon map[string]rune = map[string]rune{
+	"clear":            'B',
+	"isolated-clouds":  'H',
+	"scattered-clouds": 'H',
+	"overcast":         'N',
+	"light-rain":       'Q',
+	"moderate-rain":    'R',
+	"heavy-rain":       'R',
+	"sleet":            'V',
+	"light-snow":       'U',
+	"moderate-snow":    'U',
+	"heavy-snow":       'W',
+	"fog":              'L',
+	"na":               ')',
+}
 
 type Weather struct {
 	Place              Place      `json:"place"`
@@ -31,6 +50,7 @@ type Forecast struct {
 	WindGust        int     `json:"windGust"`
 	WindDirection   int     `json:"windDirection"`
 	ConditionCode   string  `json:"conditionCode"`
+	Icon            rune    `json:"icon"`
 }
 
 type Time time.Time
@@ -91,5 +111,17 @@ func (c *client) Forecast(place string) (*Weather, error) {
 		return nil, fmt.Errorf("decoding forecasts response to JSON: %v", err)
 	}
 
+	for i, f := range response.ForecastTimestamps {
+		response.ForecastTimestamps[i].Icon = getIcon(f.ConditionCode)
+	}
+
 	return &response, nil
+}
+
+func getIcon(code string) rune {
+	icon, exists := conditionToMeteocon[code]
+	if exists == false {
+		return iconNotFound
+	}
+	return icon
 }
