@@ -47,7 +47,7 @@ func GetWeather() Weather {
 }
 
 type weather struct {
-	Client meteolt.Client
+	Client meteolt.Service
 	ts     time.Time
 	last   *meteolt.Weather
 }
