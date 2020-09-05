@@ -99,6 +99,10 @@ func (s *service) Forecast(place string) (*Weather, error) {
 		return nil, fmt.Errorf("querying client: %w", err)
 	}
 
+	for i, f := range w.ForecastTimestamps {
+		w.ForecastTimestamps[i].Icon = getIcon(f.ConditionCode)
+	}
+
 	return w, nil
 }
 
@@ -123,10 +127,6 @@ func (c *client) Forecast(place string) (*Weather, error) {
 	var response Weather
 	if err := json.Unmarshal(forecast, &response); err != nil {
 		return nil, fmt.Errorf("decoding forecasts response to JSON: %v", err)
-	}
-
-	for i, f := range response.ForecastTimestamps {
-		response.ForecastTimestamps[i].Icon = getIcon(f.ConditionCode)
 	}
 
 	return &response, nil
