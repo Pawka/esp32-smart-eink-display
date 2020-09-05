@@ -79,12 +79,31 @@ func (ct *Time) ToTime() time.Time {
 	return time.Time(*ct)
 }
 
-type Client interface {
+type Service interface {
 	Forecast(place string) (*Weather, error)
 }
 
-func New() Client {
-	return &client{}
+type service struct {
+	c Client
+}
+
+func New() Service {
+	return &service{
+		c: &client{},
+	}
+}
+
+func (s *service) Forecast(place string) (*Weather, error) {
+	w, err := s.c.Forecast(place)
+	if err != nil {
+		return nil, fmt.Errorf("querying client: %w", err)
+	}
+
+	return w, nil
+}
+
+type Client interface {
+	Forecast(place string) (*Weather, error)
 }
 
 type client struct {
