@@ -84,7 +84,7 @@ type Service interface {
 }
 
 type service struct {
-	c Client
+	c *client
 }
 
 func New() Service {
@@ -102,12 +102,7 @@ func (s *service) Forecast(place string) (*Weather, error) {
 	return w, nil
 }
 
-type Client interface {
-	Forecast(place string) (*Weather, error)
-}
-
-type client struct {
-}
+type client struct{}
 
 var forecastURL = func(place string) string {
 	return fmt.Sprintf(forecastsURL, place)
