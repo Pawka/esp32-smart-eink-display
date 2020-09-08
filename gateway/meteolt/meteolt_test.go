@@ -7,7 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Pawka/esp32-eink-smart-display/mocks"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestForecast(t *testing.T) {
@@ -27,10 +30,21 @@ func TestForecast(t *testing.T) {
 	}
 	defer func() { forecastURL = oldURLFunc }()
 
-	c := New()
-	res, err := c.Forecast("vilnius")
-	t1, _ := time.Parse(ctLayout, "2020-08-16 11:00:00")
-	t2, _ := time.Parse(ctLayout, "2020-08-16 12:00:00")
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	clock := mocks.NewMockClock(ctrl)
+	c := service{
+		c: newClient(),
+		t: clock,
+	}
+
+	clock.EXPECT().UTC().Times(1).DoAndReturn(func() time.Time {
+		currentTime, err := time.Parse(ctLayout, "2020-08-16 12:10:00")
+		require.NoError(t, err)
+		return currentTime
+	})
+	forecastTime, err := time.Parse(ctLayout, "2020-08-16 12:00:00")
+	require.NoError(t, err)
 
 	want := &Weather{
 		Place: Place{
@@ -38,16 +52,7 @@ func TestForecast(t *testing.T) {
 		},
 		ForecastTimestamps: []Forecast{
 			{
-				ForecastTimeUTC: Time(t1),
-				AirTemperature:  28.5,
-				WindSpeed:       2,
-				WindGust:        6,
-				WindDirection:   271,
-				ConditionCode:   "clear",
-				Icon:            'B',
-			},
-			{
-				ForecastTimeUTC: Time(t2),
+				ForecastTimeUTC: Time(forecastTime),
 				AirTemperature:  29,
 				WindSpeed:       3,
 				WindGust:        7,
@@ -58,8 +63,70 @@ func TestForecast(t *testing.T) {
 		},
 	}
 
+	res, err := c.Forecast("vilnius")
 	assert.NoError(t, err)
 	assert.Equal(t, want, res)
+}
+
+func TestDropPastTimestamps(t *testing.T) {
+	in := []Forecast{
+		{ForecastTimeUTC: ts(t, "2020-09-01 12:00:00")},
+		{ForecastTimeUTC: ts(t, "2020-09-01 13:00:00")},
+		{ForecastTimeUTC: ts(t, "2020-09-01 14:00:00")},
+	}
+
+	testCases := map[string]struct {
+		now  string
+		want []Forecast
+	}{
+		"current_time_is_prior_all_timestamps": {
+			now:  "2020-09-01 11:00:00",
+			want: in,
+		},
+		"current_time_is_equal_to_the_first_timestamp": {
+			now:  "2020-09-01 12:00:00",
+			want: in,
+		},
+		"current_time_is_in_the_same_hour_of_the_first_timestamp": {
+			now:  "2020-09-01 12:01:00",
+			want: in,
+		},
+		"current_time_after_first_timestamp": {
+			now: "2020-09-01 13:00:00",
+			want: []Forecast{
+				{ForecastTimeUTC: ts(t, "2020-09-01 13:00:00")},
+				{ForecastTimeUTC: ts(t, "2020-09-01 14:00:00")},
+			},
+		},
+		"current_time_after_all_timestamps": {
+			now:  "2020-09-01 15:00:00",
+			want: []Forecast{},
+		},
+	}
+	for name, test := range testCases {
+		t.Run(name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			clock := mocks.NewMockClock(ctrl)
+			clock.EXPECT().UTC().DoAndReturn(func() time.Time {
+				ts, err := time.Parse(ctLayout, test.now)
+				require.NoError(t, err)
+				return ts
+			})
+			c := service{
+				t: clock,
+			}
+			result := c.dropPastTimestamps(in)
+			assert.Equal(t, test.want, result)
+		})
+	}
+}
+
+func ts(t *testing.T, timestamp string) Time {
+	ts, err := time.Parse(ctLayout, timestamp)
+	require.NoError(t, err)
+	return Time(ts)
 }
 
 func TestGetIcon(t *testing.T) {

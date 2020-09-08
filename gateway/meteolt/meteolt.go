@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"strings"
 	"time"
 
-	"net/http"
+	"github.com/Pawka/esp32-eink-smart-display/lib"
 )
 
 const (
@@ -85,11 +86,13 @@ type Service interface {
 
 type service struct {
 	c *client
+	t lib.Clock
 }
 
 func New() Service {
 	return &service{
-		c: &client{},
+		c: newClient(),
+		t: lib.NewClock(),
 	}
 }
 
@@ -99,14 +102,29 @@ func (s *service) Forecast(place string) (*Weather, error) {
 		return nil, fmt.Errorf("querying client: %w", err)
 	}
 
+	w.ForecastTimestamps = s.dropPastTimestamps(w.ForecastTimestamps)
 	for i, f := range w.ForecastTimestamps {
 		w.ForecastTimestamps[i].Icon = getIcon(f.ConditionCode)
 	}
-
 	return w, nil
 }
 
 type client struct{}
+
+func newClient() *client {
+	return &client{}
+}
+
+func (s *service) dropPastTimestamps(timestamps []Forecast) []Forecast {
+	startTime := s.t.UTC().Add(-time.Hour)
+	for i := range timestamps {
+		if startTime.Before(timestamps[i].ForecastTimeUTC.ToTime()) == true {
+			return timestamps[i:]
+		}
+	}
+
+	return []Forecast{}
+}
 
 var forecastURL = func(place string) string {
 	return fmt.Sprintf(forecastsURL, place)
