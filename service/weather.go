@@ -27,7 +27,7 @@ type Forecast struct {
 	WindSpeed      int         `json:"wind"`
 	WindDirection  int         `json:"direction"`
 	ConditionCode  string      `json:"condition"`
-	Icon           rune        `json:"icon"`
+	Icon           string      `json:"icon"`
 }
 
 type Weather interface {
@@ -84,7 +84,7 @@ func mapFromMeteoltResponse(data []meteolt.Forecast) []Forecast {
 		ConditionCode:  data[0].ConditionCode,
 		WindDirection:  data[0].WindDirection,
 		WindSpeed:      data[0].WindSpeed,
-		Icon:           data[0].Icon,
+		Icon:           string(data[0].Icon),
 	}
 
 	// TODO: implement mapping for remaining days
