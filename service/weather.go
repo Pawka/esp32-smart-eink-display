@@ -25,6 +25,7 @@ type Forecast struct {
 	Day            ForecastDay `json:"day"`
 	AirTemperature float32     `json:"temp"`
 	WindSpeed      int         `json:"wind"`
+	WindGust       int         `json:"gust"`
 	WindDirection  int         `json:"direction"`
 	ConditionCode  string      `json:"condition"`
 	Icon           string      `json:"icon"`
@@ -83,6 +84,7 @@ func mapFromMeteoltResponse(data []meteolt.Forecast) []Forecast {
 		AirTemperature: data[0].AirTemperature,
 		ConditionCode:  data[0].ConditionCode,
 		WindDirection:  data[0].WindDirection,
+		WindGust:       data[0].WindGust,
 		WindSpeed:      data[0].WindSpeed,
 		Icon:           string(data[0].Icon),
 	}
