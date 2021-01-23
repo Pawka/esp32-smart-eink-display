@@ -11,7 +11,8 @@ const (
 )
 
 type Content struct {
-	TS      string           `json:"ts"`
+	Date    string           `json:"date"`
+	TS      int32            `json:"ts"`
 	Weather ForecastResponse `json:"weather"`
 }
 
@@ -23,7 +24,8 @@ func NewContent() (Content, error) {
 	}
 	t := time.Now()
 	return Content{
-		TS:      t.Format(layoutISO),
+		Date:    t.Format(layoutISO),
+		TS:      int32(t.Unix()),
 		Weather: *wr,
 	}, nil
 }
