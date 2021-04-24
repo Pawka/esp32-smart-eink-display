@@ -1,9 +1,6 @@
 package meteolt
 
 import (
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -14,20 +11,7 @@ import (
 
 func TestGet(t *testing.T) {
 	const forecastFixture string = "testdata/long-term.json"
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		data, err := ioutil.ReadFile(forecastFixture)
-		if err != nil {
-			t.Fatal(err)
-		}
-		w.Write(data)
-	}))
-
-	defer ts.Close()
-	oldURLFunc := forecastURL
-	forecastURL = func(place string) string {
-		return ts.URL
-	}
-	defer func() { forecastURL = oldURLFunc }()
+	defer mockServer(t, forecastFixture)()
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
