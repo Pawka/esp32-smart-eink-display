@@ -36,6 +36,25 @@ func TestForecast(t *testing.T) {
 	const forecastFixture string = "testdata/long-term-full.json"
 	defer mockServer(t, forecastFixture)()
 
+	wantForecast := []entities.Forecast{
+		{
+			Day:              entities.Today,
+			AirTemperature:   4.7,
+			NightTemperature: -999,
+			DayTemperature:   5.7,
+			WindSpeed:        5,
+			WindGust:         12,
+			WindDirection:    304,
+			ConditionCode:    "light-rain",
+			Icon:             "Q",
+		},
+		{
+			Day:              entities.Tomorrow,
+			NightTemperature: -0.1,
+			DayTemperature:   5.4,
+		},
+	}
+
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -50,20 +69,9 @@ func TestForecast(t *testing.T) {
 		require.NoError(t, err)
 		return currentTime
 	})
-
 	want := &entities.ForecastResponse{
-		Place: "Vilnius",
-		Forecast: []entities.Forecast{
-			{
-				Day:            entities.Today,
-				AirTemperature: 4.7,
-				WindSpeed:      5,
-				WindGust:       12,
-				WindDirection:  304,
-				ConditionCode:  "light-rain",
-				Icon:           "Q",
-			},
-		},
+		Place:    "Vilnius",
+		Forecast: wantForecast,
 	}
 
 	res, err := c.Forecast("vilnius")

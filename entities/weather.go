@@ -13,11 +13,13 @@ type ForecastResponse struct {
 }
 
 type Forecast struct {
-	Day            ForecastDay `json:"day"`
-	AirTemperature float32     `json:"temp"`
-	WindSpeed      int         `json:"wind"`
-	WindGust       int         `json:"gust"`
-	WindDirection  int         `json:"direction"`
-	ConditionCode  string      `json:"condition"`
-	Icon           string      `json:"icon"`
+	Day              ForecastDay `json:"day"`
+	AirTemperature   float32     `json:"temp"`
+	DayTemperature   float32     `json:"daytemp"`
+	NightTemperature float32     `json:"nighttemp"`
+	WindSpeed        int         `json:"wind"`
+	WindGust         int         `json:"gust"`
+	WindDirection    int         `json:"direction"`
+	ConditionCode    string      `json:"condition"`
+	Icon             string      `json:"icon"`
 }
