@@ -3,6 +3,8 @@ package service
 import (
 	"fmt"
 	"time"
+
+	"github.com/Pawka/esp32-eink-smart-display/entities"
 )
 
 const (
@@ -11,9 +13,9 @@ const (
 )
 
 type Content struct {
-	Date    string           `json:"date"`
-	TS      int32            `json:"ts"`
-	Weather ForecastResponse `json:"weather"`
+	Date    string                    `json:"date"`
+	TS      int32                     `json:"ts"`
+	Weather entities.ForecastResponse `json:"weather"`
 }
 
 func NewContent() (Content, error) {

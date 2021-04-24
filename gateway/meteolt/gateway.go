@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/Pawka/esp32-eink-smart-display/lib"
 )
 
 const (
@@ -19,7 +17,7 @@ const (
 
 // conditionToMeteocon is weather conditions map to meteocon icons font.
 // URL: alessioatzeni.com/meteocons/
-var conditionToMeteocon map[string]rune = map[string]rune{
+var conditionToMeteocon = map[string]rune{
 	"clear":            'B',
 	"isolated-clouds":  'H',
 	"scattered-clouds": 'H',
@@ -80,57 +78,24 @@ func (ct *Time) ToTime() time.Time {
 	return time.Time(*ct)
 }
 
-type Service interface {
-	Forecast(place string) (*Weather, error)
-}
-
-type service struct {
-	c *client
-	t lib.Clock
-}
-
-func New() Service {
-	return &service{
-		c: newClient(),
-		t: lib.NewClock(),
-	}
-}
-
-func (s *service) Forecast(place string) (*Weather, error) {
-	w, err := s.c.Forecast(place)
-	if err != nil {
-		return nil, fmt.Errorf("querying client: %w", err)
-	}
-
-	w.ForecastTimestamps = s.dropPastTimestamps(w.ForecastTimestamps)
-	for i, f := range w.ForecastTimestamps {
-		w.ForecastTimestamps[i].Icon = getIcon(f.ConditionCode)
-	}
-	return w, nil
+// Gateway defines an interface to fetch weather forecast information from
+// meteo.lt API.
+type Gateway interface {
+	Get(place string) (*Weather, error)
 }
 
 type client struct{}
 
-func newClient() *client {
+// NewGateway creates a new gateway.
+func NewGateway() Gateway {
 	return &client{}
-}
-
-func (s *service) dropPastTimestamps(timestamps []Forecast) []Forecast {
-	startTime := s.t.UTC().Add(-time.Hour)
-	for i := range timestamps {
-		if startTime.Before(timestamps[i].ForecastTimeUTC.ToTime()) == true {
-			return timestamps[i:]
-		}
-	}
-
-	return []Forecast{}
 }
 
 var forecastURL = func(place string) string {
 	return fmt.Sprintf(forecastsURL, place)
 }
 
-func (c *client) Forecast(place string) (*Weather, error) {
+func (c *client) Get(place string) (*Weather, error) {
 	resp, err := http.Get(forecastURL(place))
 	if err != nil {
 		return nil, fmt.Errorf("requesting meteo.lt: %v", err)
@@ -145,6 +110,10 @@ func (c *client) Forecast(place string) (*Weather, error) {
 	var response Weather
 	if err := json.Unmarshal(forecast, &response); err != nil {
 		return nil, fmt.Errorf("decoding forecasts response to JSON: %v", err)
+	}
+
+	for i, f := range response.ForecastTimestamps {
+		response.ForecastTimestamps[i].Icon = getIcon(f.ConditionCode)
 	}
 
 	return &response, nil
