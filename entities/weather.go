@@ -3,8 +3,7 @@ package entities
 type ForecastDay string
 
 var (
-	Today    ForecastDay = "Today"
-	Tomorrow ForecastDay = "Tomorrow"
+	Today ForecastDay = "Today"
 )
 
 type ForecastResponse struct {
@@ -15,8 +14,8 @@ type ForecastResponse struct {
 type Forecast struct {
 	Day              ForecastDay `json:"day"`
 	AirTemperature   float32     `json:"temp"`
-	DayTemperature   float32     `json:"daytemp"`
-	NightTemperature float32     `json:"nighttemp"`
+	DayTemperature   int         `json:"daytemp"`
+	NightTemperature int         `json:"nighttemp"`
 	WindSpeed        int         `json:"wind"`
 	WindGust         int         `json:"gust"`
 	WindDirection    int         `json:"direction"`

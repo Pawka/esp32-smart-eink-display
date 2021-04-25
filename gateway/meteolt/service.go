@@ -2,6 +2,7 @@ package meteolt
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/Pawka/esp32-eink-smart-display/entities"
@@ -25,8 +26,8 @@ func New() gateway.WeatherInterface {
 type dailyForecast map[string]*dayForecast
 
 type dayForecast struct {
-	NightTemp     float32
-	DayTemp       float32
+	NightTemp     float64
+	DayTemp       float64
 	ConditionCode string
 }
 
@@ -50,8 +51,8 @@ func (s *service) Forecast(place string) (*entities.ForecastResponse, error) {
 
 	todayFormat := w.ForecastTimestamps[0].ForecastTimeUTC.ToTime().Format(dateLayout)
 	today := mapFromForecast(entities.Today, w.ForecastTimestamps[0])
-	today.NightTemperature = dailyFc[todayFormat].NightTemp
-	today.DayTemperature = dailyFc[todayFormat].DayTemp
+	today.NightTemperature = int(dailyFc[todayFormat].NightTemp)
+	today.DayTemperature = int(dailyFc[todayFormat].DayTemp)
 
 	const furtherDaysCount = 3
 	days := s.getFurtherDays(dailyFc, w.ForecastTimestamps, furtherDaysCount)
@@ -137,8 +138,8 @@ func mapFromForecast(day entities.ForecastDay, data Forecast) entities.Forecast 
 
 func mapFromDayForecast(forecast *dayForecast) entities.Forecast {
 	return entities.Forecast{
-		NightTemperature: forecast.NightTemp,
-		DayTemperature:   forecast.DayTemp,
+		NightTemperature: int(math.Round(forecast.NightTemp)),
+		DayTemperature:   int(math.Round(forecast.DayTemp)),
 		Icon:             string(getIcon(forecast.ConditionCode)),
 	}
 }
