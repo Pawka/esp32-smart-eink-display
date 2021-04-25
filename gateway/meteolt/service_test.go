@@ -49,9 +49,21 @@ func TestForecast(t *testing.T) {
 			Icon:             "Q",
 		},
 		{
-			Day:              entities.Tomorrow,
+			Day:              "Sun",
 			NightTemperature: -0.1,
 			DayTemperature:   5.4,
+			Icon:             "R",
+		},
+		{
+			Day:              "Mon",
+			NightTemperature: -0.1,
+			DayTemperature:   6.2,
+			Icon:             "V",
+		},
+		{
+			Day:              "Tue",
+			NightTemperature: -0.8,
+			DayTemperature:   8.4,
 			Icon:             "R",
 		},
 	}

@@ -53,20 +53,31 @@ func (s *service) Forecast(place string) (*entities.ForecastResponse, error) {
 	today.NightTemperature = dailyFc[todayFormat].NightTemp
 	today.DayTemperature = dailyFc[todayFormat].DayTemp
 
-	tomorrowFormat := w.ForecastTimestamps[0].ForecastTimeUTC.ToTime().Add(time.Hour * 24).Format(dateLayout)
-	tomorrow := mapFromDayForecast(dailyFc[tomorrowFormat])
-	tomorrow.Day = entities.Tomorrow
-
-	f := []entities.Forecast{
-		today,
-		tomorrow,
-	}
+	const furtherDaysCount = 3
+	days := s.getFurtherDays(dailyFc, w.ForecastTimestamps, furtherDaysCount)
+	f := []entities.Forecast{today}
+	f = append(f, days...)
 
 	resp := &entities.ForecastResponse{
 		Place:    w.Place.Name,
 		Forecast: f,
 	}
 	return resp, nil
+}
+
+func (s *service) getFurtherDays(df dailyForecast, ft []Forecast, days int) []entities.Forecast {
+	i := 0
+	t := ft[0].ForecastTimeUTC.ToTime().Add(time.Hour * 24)
+	result := make([]entities.Forecast, days)
+	for ; i < days; i++ {
+		dayFormat := t.Format(dateLayout)
+		day := mapFromDayForecast(df[dayFormat])
+		day.Day = entities.ForecastDay(t.Weekday().String()[:3])
+		result[i] = day
+		t = t.Add(time.Hour * 24)
+	}
+
+	return result
 }
 
 func (s *service) getDailyForecast(timestamps []Forecast) dailyForecast {
