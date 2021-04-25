@@ -33,6 +33,24 @@ var conditionToMeteocon = map[string]rune{
 	"na":               ')',
 }
 
+// conditionOrder is weather conditions order to decide which condition should
+// represend the day. Higher value means higher importance.
+var conditionOrder = map[string]int{
+	"na":               0,
+	"clear":            1,
+	"scattered-clouds": 2,
+	"isolated-clouds":  3,
+	"overcast":         4,
+	"fog":              5,
+	"light-rain":       6,
+	"light-snow":       7,
+	"moderate-rain":    8,
+	"moderate-snow":    9,
+	"sleet":            10,
+	"heavy-rain":       11,
+	"heavy-snow":       12,
+}
+
 type Weather struct {
 	Place              Place      `json:"place"`
 	ForecastTimestamps []Forecast `json:"forecastTimestamps"`

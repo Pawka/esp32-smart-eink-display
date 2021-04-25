@@ -25,8 +25,9 @@ func New() gateway.WeatherInterface {
 type dailyForecast map[string]*dayForecast
 
 type dayForecast struct {
-	NightTemp float32
-	DayTemp   float32
+	NightTemp     float32
+	DayTemp       float32
+	ConditionCode string
 }
 
 const (
@@ -89,6 +90,11 @@ func (s *service) getDailyForecast(timestamps []Forecast) dailyForecast {
 			if result[cd].DayTemp == tempNone || result[cd].DayTemp < v.AirTemperature {
 				result[cd].DayTemp = v.AirTemperature
 			}
+
+			condition := result[cd].ConditionCode
+			if condition == "" || conditionOrder[condition] < conditionOrder[v.ConditionCode] {
+				result[cd].ConditionCode = v.ConditionCode
+			}
 		}
 	}
 
@@ -122,5 +128,6 @@ func mapFromDayForecast(forecast *dayForecast) entities.Forecast {
 	return entities.Forecast{
 		NightTemperature: forecast.NightTemp,
 		DayTemperature:   forecast.DayTemp,
+		Icon:             string(getIcon(forecast.ConditionCode)),
 	}
 }
