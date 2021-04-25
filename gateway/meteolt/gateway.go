@@ -62,7 +62,7 @@ type Place struct {
 
 type Forecast struct {
 	ForecastTimeUTC Time    `json:"forecastTimeUtc"`
-	AirTemperature  float32 `json:"airTemperature"`
+	AirTemperature  float64 `json:"airTemperature"`
 	WindSpeed       int     `json:"WindSpeed"`
 	WindGust        int     `json:"windGust"`
 	WindDirection   int     `json:"windDirection"`

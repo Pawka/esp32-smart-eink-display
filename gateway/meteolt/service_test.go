@@ -41,7 +41,7 @@ func TestForecast(t *testing.T) {
 			Day:              entities.Today,
 			AirTemperature:   4.7,
 			NightTemperature: -999,
-			DayTemperature:   6,
+			DayTemperature:   5,
 			WindSpeed:        5,
 			WindGust:         12,
 			WindDirection:    304,

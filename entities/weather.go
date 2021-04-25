@@ -13,7 +13,7 @@ type ForecastResponse struct {
 
 type Forecast struct {
 	Day              ForecastDay `json:"day"`
-	AirTemperature   float32     `json:"temp"`
+	AirTemperature   float64     `json:"temp"`
 	DayTemperature   int         `json:"daytemp"`
 	NightTemperature int         `json:"nighttemp"`
 	WindSpeed        int         `json:"wind"`
